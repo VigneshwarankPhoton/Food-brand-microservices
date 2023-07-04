@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module,  MiddlewareConsumer, NestModule } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { AppController } from './app.controller';
@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { ProductModule } from './modules/product/product.module';
 import { join } from 'path';
 import { MongooseModule } from '@nestjs/mongoose';
+import { LoggerMiddleware } from './utills/logger';
 
 @Module({
   imports: [
@@ -20,6 +21,13 @@ import { MongooseModule } from '@nestjs/mongoose';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+     // Add the Logger provider here
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(LoggerMiddleware).forRoutes('*');
+  }
+}
